@@ -17,13 +17,11 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
+          script_stop: false
           script: |
             set -e
 
-            echo "Updating system..."
             sudo yum update -y
-
-            echo "Installing Python3, pip and Git..."
             sudo yum install -y python3 python3-pip git
 
             APP_DIR=/opt/docker_python_flask-project
@@ -38,13 +36,10 @@ jobs:
             sudo chown -R ec2-user:ec2-user $APP_DIR
             cd $APP_DIR
 
-            echo "Installing dependencies..."
             pip3 install --user -r requirements.txt
 
-            echo "Stopping old app if running..."
             pgrep -f app.py && pkill -f app.py || echo "No running app"
 
-            echo "Starting Flask app..."
             setsid nohup python3 app.py > app.log 2>&1 < /dev/null &
 
             echo "Deployment completed successfully 🚀"
