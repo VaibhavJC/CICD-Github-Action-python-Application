@@ -17,29 +17,38 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          script_stop: false
           script: |
             set -e
 
+            echo "Updating system..."
             sudo yum update -y
+
+            echo "Installing Python, pip, and git..."
             sudo yum install -y python3 python3-pip git
 
             APP_DIR=/opt/docker_python_flask-project
 
             if [ ! -d "$APP_DIR" ]; then
+              echo "Cloning repository..."
               sudo git clone https://github.com/CloudTechDevOps/docker_python_flask-project.git $APP_DIR
             else
+              echo "Pulling latest changes..."
               cd $APP_DIR
               sudo git pull
             fi
 
+            echo "Fixing permissions..."
             sudo chown -R ec2-user:ec2-user $APP_DIR
             cd $APP_DIR
 
+            echo "Installing Python dependencies..."
             pip3 install --user -r requirements.txt
 
-            pgrep -f app.py && pkill -f app.py || echo "No running app"
+            echo "Stopping old Flask app if running..."
+            pgrep -f "python3 app.py" && pkill -f "python3 app.py" || echo "No running app"
 
-            setsid nohup python3 app.py > app.log 2>&1 < /dev/null &
+            echo "Starting Flask app..."
+            nohup python3 app.py > app.log 2>&1 &
+            disown
 
             echo "Deployment completed successfully 🚀"
