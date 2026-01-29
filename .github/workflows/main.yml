@@ -48,6 +48,6 @@ jobs:
 
             # Start Flask app in background (survives SSH session)
             echo "Starting Flask app..."
-            nohup python3 app.py > app.log 2>&1 &
+            nohup python3 /opt/docker_python_flask-project/app.py > app.log 2>&1 &
 
             echo "Deployment completed successfully 🚀"
