@@ -46,7 +46,7 @@ jobs:
             echo "Installing Python dependencies..."
             sudo pip3 install -r requirements.txt
 
-            # Start Flask app in background (survives SSH session)
+            # Start Flask app in background (no killing old process)
             echo "Starting Flask app..."
             nohup python3 app.py > app.log 2>&1 &
 
