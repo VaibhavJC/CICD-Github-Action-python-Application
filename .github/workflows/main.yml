@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy application on Amazon Linux EC2
+      - name: Deploy Python App on Amazon Linux EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -23,29 +23,31 @@ jobs:
             echo "Updating system..."
             sudo yum update -y
 
-            echo "Installing Python, pip, and git..."
+            echo "Installing Python3, pip, and git..."
             sudo yum install -y python3 python3-pip git
 
-            APP_DIR=/opt/docker_python_flask-project
+            APP_DIR=/opt/cloud-python-app
 
+            # Clone or update repo
             if [ ! -d "$APP_DIR" ]; then
               echo "Cloning repository..."
-              sudo git clone https://github.com/CloudTechDevOps/docker_python_flask-project.git $APP_DIR
+              sudo git clone https://github.com/CloudTechDevOps/python.git $APP_DIR
             else
               echo "Pulling latest changes..."
               cd $APP_DIR
               sudo git pull
             fi
 
-            echo "Fixing permissions..."
+            # Fix permissions
             sudo chown -R ec2-user:ec2-user $APP_DIR
             cd $APP_DIR
 
+            # Install dependencies system-wide
             echo "Installing Python dependencies..."
-            pip3 install --user -r requirements.txt
+            sudo pip3 install -r requirements.txt
 
+            # Start Flask app in background (survives SSH session)
             echo "Starting Flask app..."
-            nohup python3 /opt/docker_python_flask-project/app.py > app.log 2>&1 &
-            disown
+            nohup python3 app.py > app.log 2>&1 &
 
             echo "Deployment completed successfully 🚀"
