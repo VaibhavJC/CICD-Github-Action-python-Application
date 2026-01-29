@@ -31,7 +31,7 @@ jobs:
             # Clone or update repo
             if [ ! -d "$APP_DIR" ]; then
               echo "Cloning repository..."
-              sudo git clone https://github.com/CloudTechDevOps/python.git $APP_DIR
+              sudo git clone https://github.com/CloudTechDevOps/docker_python_flask-project.git $APP_DIR
             else
               echo "Pulling latest changes..."
               cd $APP_DIR
